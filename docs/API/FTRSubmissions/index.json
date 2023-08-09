@@ -1,0 +1,418 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "0.9 - in development",
+    "title": "FTR Submissions",
+    "description": "Create, edit, and delete FTR Submissions"
+  },
+  "servers": [
+    {
+      "description": "Dev/test - James Richmond's machine; Uses postgres-test DB",
+      "url": "http://merry:12080/Servlets/ftrSubmissions"
+    },
+    {
+      "description": "Production API Server",
+      "url": "http://aquarium1:28080/Servlets/ftrSubmissions"
+    }
+  ],
+  "paths": {
+    "/{id}": {
+      "description": "{id} = *sescouser.ftr_submission.submissionid*",
+      "get": {
+        "summary": "Get an FTR Submission by ID",
+        "responses": {
+          "200": {
+            "description": "The FTR submission requested",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Submission"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested FTR was not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "ID of FTR Submission to get",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/SubmissionId"
+          }
+        }
+      ]
+    },
+    "/": {
+      "post": {
+        "summary": "Submit FTR Submissions",
+        "requestBody": {
+          "description": "",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmissionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "All Submissions succesful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionResponses"
+                }
+              }
+            }
+          },
+          "207": {
+            "description": "Submissions submitted with mixed results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionResponses"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete FTR Submissions",
+        "requestBody": {
+          "description": "",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeletionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "All Deletions succesful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletionResponses"
+                }
+              }
+            }
+          },
+          "207": {
+            "description": "Deletions submitted with mixed results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletionResponses"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UserId": {
+        "description": "The userID of the user sending the request",
+        "type": "integer"
+      },
+      "SubmissionId": {
+        "description": "The unique identifier of an FTR Submission",
+        "type": "integer"
+      },
+      "Submission": {
+        "description": "A submission object - in a request: the Submission to create or edit; in a reponse: the Submission object requested to be created or edited",
+        "type": "object",
+        "required": [
+          "ftrSubmissionId",
+          "caID",
+          "mw",
+          "pricePerMW",
+          "tradingDeskID",
+          "tou"
+        ],
+        "properties": {
+          "ftrSubmissionID": {
+            "description": "*sescouser.ftr_submission.submissionid* - use the ID of a Submission to edit, or use 0 for a new Submission",
+            "type": "integer"
+          },
+          "caID": {
+            "description": "",
+            "type": "integer"
+          },
+          "sourceIsoNodeID": {
+            "description": "*sescouser.node.iso_node_id* - requests require either source/sink IDs or names, depending on ISO",
+            "type": "string"
+          },
+          "sinkIsoNodeID": {
+            "description": "*sescouser.node.iso_node_id* - requests require either source/sink IDs or names, depending on ISO",
+            "type": "string"
+          },
+          "ftrMarketID": {
+            "description": "*ftr_market.ftrMarketID* - used first to find FTR market, required if **ftrISOMarketName** is not included",
+            "type": "integer"
+          },
+          "marketName":{
+            "description": "*ftr_market.isoMarketName* - ignored if FTR market is found using **ftrMarketID**, otherwise is required",
+            "type": "string"
+          },
+          "ftrAuctionID": {
+            "description": "*ftr_auction_m.ftrAuctionID* - used first to find FTR auction, required if **xxx adn yyy** are not both included",
+            "type": "integer"
+          },
+          "auctionName":{
+            "description": "*ftr_auction_m.auctionName* - ignored if FTR auction is found using **ftrAuctionID**, otherwise is required along with **auctionRound**",
+            "type": "string"
+          },
+          "auctionRound":{
+            "description": "*ftr_auction_m.round* - ignored if FTR auction is found using **ftrAuctionID**, otherwise is required along with **auctionName**",
+            "type":"integer"
+          },
+          "tradingDeskID": {
+            "type": "integer"
+          },
+          "sourceNodeName": {
+            "description": "requests require either source/sink IDs or names, depending on ISO",
+            "type": "string"
+          },
+          "sinkNodeName": {
+            "description": "requests require either source/sink IDs or names, depending on ISO",
+            "type": "string"
+          },
+          "mw": {
+            "description": "the number of MW bid/offered",
+            "type": "number"
+          },
+          "pricePerMw": {
+            "type": "number"
+          },
+          "tou": {
+            "description": "time-of-use - providing an invalid TOU for the given iso will result in a Submission failing to be created or edited",
+            "type": "string",
+            "enum": [
+              "Off Peak",
+              "Peak",
+              "All",
+              "Weekend8",
+              "Weekend16",
+              "OffPeak7x8"
+            ]
+          },
+          "strategy": {
+            "type": "integer"
+          },
+          "userComment": {
+            "type": "string"
+          },
+          "userComment2": {
+            "type": "string"
+          },
+          "sourceISOFTRID": {
+            "description": "required for sells - failing to include this in a sell will result in a Submission failing to be created or edited",
+            "type": "integer"
+          }
+        }
+      },
+      "SubmissionArray": {
+        "description": "An array of submission objects",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Submission"
+        }
+      },
+      "SubmissionRequest": {
+        "description": "A request object, containing the id of the user submitting the request, and an array of Submission objects",
+        "type": "object",
+        "required": [
+          "userId",
+          "submissions"
+        ],
+        "properties": {
+          "userID": {
+            "$ref": "#/components/schemas/UserId"
+          },
+          "submissions": {
+            "$ref": "#/components/schemas/SubmissionArray"
+          }
+        }
+      },
+      "SubmissionResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "submission": {
+            "$ref": "#/components/schemas/Submission"
+          },
+          "message": {
+            "$ref": "#/components/schemas/Message"
+          }
+        }
+      },
+      "SubmissionResponses": {
+        "type": "object",
+        "properties": {
+          "responses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubmissionResponse"
+            }
+          }
+        }
+      },
+      "DeletionRequest": {
+        "description": "A request object, containing the id of the user submitting the request, and an array of Submission ids",
+        "type": "object",
+        "required": [
+          "userId",
+          "submissionIds"
+        ],
+        "properties": {
+          "userId": {
+            "$ref": "#/components/schemas/UserId"
+          },
+          "submissionIds": {
+            "$ref": "#/components/schemas/SubmissionIds"
+          }
+        }
+      },
+      "DeletionResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "submissionId": {
+            "$ref": "#/components/schemas/SubmissionId"
+          },
+          "message": {
+            "$ref": "#/components/schemas/Message"
+          }
+        }
+      },
+      "SubmissionIds": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/SubmissionId"
+        }
+      },
+      "Message": {
+        "description": "The message from the API server",
+        "type": "string"
+      },
+      "DeletionResponses": {
+        "type": "object",
+        "properties": {
+          "responses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeletionResponse"
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "$ref": "#/components/schemas/Message"
+          }
+        }
+      }
+    }
+  }
+}
